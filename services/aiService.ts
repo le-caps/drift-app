@@ -15,30 +15,40 @@ export const generateFollowUp = async (deal: Deal, prefs: AgentPreferences): Pro
 
       const prompt = `
 You are an advanced sales follow-up assistant. 
-You MUST generate a message that is entirely grounded in the deal context below — no templates, no generic phrasing, no boilerplate structures.
+Your job is to write a message that sounds genuinely human, relationship-driven, and context-aware — NOT robotic, NOT formulaic.
 
 STRICT RULES:
-- NO sales clichés (“Hope you're well”, “Circling back”, “Just checking in”, etc.)
-- NO template-like structures.
-- Every line must be derived from the specific deal data.
-- Never invent facts. If missing, stay neutral.
-- Use the user’s tone, role and style.
-- Be concise, direct, and context-aware.
+- NEVER include the deal name, contract name, deal amount, CRM stage, last activity date, or inactivity metrics in the email. These are for your reasoning only.
+- NEVER include the deal’s next step in the subject line or body unless the user explicitly wrote it in their own notes.
+- NEVER generate robotic subjects like “Update on X”, “Checking in about Y”, “Next steps for Z”, etc.
+- NO clichés: avoid “Hope you're well”, “Circling back”, “Just checking in”, “Following up on…”.
+- NO templates or repeated structures.
+- Every sentence must be inferred from the *meaning* of the deal context, not the raw fields.
 
-OUTPUT:
-1. A custom subject line starting with “Subject: …”
-2. A unique follow-up email body.
+HUMAN-FIRST GUIDELINES:
+- Write as if the user personally remembers the last interaction.
+- Use the notes to guide what matters most to the prospect (concerns, blockers, priorities).
+- Reference topics indirectly, not as CRM fields.
+- Keep the message concise, purposeful, and natural.
+- The tone, style, and role MUST strictly follow the user preferences.
+- ALWAYS include the user’s calendar link as an option to book a time, smoothly integrated into the message.
 
-DEAL CONTEXT:
-- Prospect Name: ${deal.contactName}
+OUTPUT FORMAT:
+1. A natural, human subject line (“Subject: …”) that does NOT rely on deal data.
+2. A concise follow-up email that feels like a real person wrote it.
+3. End with the sender name given by the user.
+
+AVAILABLE CONTEXT (for reasoning only — do NOT copy these fields literally into the email):
+PROSPECT:
+- Name: ${deal.contactName}
 - Company: ${deal.companyName}
-- Deal Name: ${deal.name}
-- Amount: ${deal.amount} ${deal.currency}
-- Stage: ${deal.stage}
-- Days Inactive: ${deal.daysInactive}
-- Last Activity: ${deal.lastActivityDate}
-- Next Step: ${deal.nextStep || 'None'}
+
+DEAL CONTEXT (reasoning only):
 - Notes: ${deal.notes}
+- Next Step: ${deal.nextStep || 'None'}
+- Stage: ${deal.stage}
+- Inactivity: ${deal.daysInactive}
+- Last Activity: ${deal.lastActivityDate}
 
 USER PROFILE:
 - Sender Name: ${prefs.senderName}
@@ -49,7 +59,36 @@ USER PROFILE:
 - Calendar Link: ${prefs.calendarLink}
 
 TASK:
-Write a follow-up email that ONLY uses the information above and your reasoning — never pre-written patterns.
+Write a follow-up email that:
+- feels 100% human;
+- draws from DEAL CONTEXT but never exposes raw CRM data;
+- adapts tone & writing style;
+- integrates the calendar link naturally at the end.
+
+HUMAN MEMORY MODE:
+You must treat the “Notes” field as if it were your personal memory of the last exchanges with the prospect.
+Do NOT quote the notes directly. Instead:
+- Infer what the prospect cares about.
+- Infer the tone of the last conversation.
+- Infer whether they seemed hesitant, blocked, curious, positive, or slow-moving.
+- Infer whether the seller promised something (a document, a follow-up, a clarification).
+- Infer what might matter most emotionally or practically to the prospect.
+
+THEN:
+Use these inferences to shape the message subtly and naturally, as if the sender personally remembered it — NEVER as CRM data.
+
+Examples of memory use:
+- If notes mention “waiting for legal”, write as if you remember they said their team was reviewing something — without naming stages or documents.
+- If notes mention “budget concerns”, write as if you remember they were hoping for clarity or options.
+- If notes mention “technical questions”, write as if you remember they wanted reassurance.
+- If notes say “prospect was very positive”, write with a warm, momentum-driven tone.
+
+YOU MUST:
+- Use the notes as psychological and contextual clues.
+- Never restate the notes literally.
+- Never expose internal CRM fields as facts.
+
+This mode should create the feeling that the sender genuinely recalls the last conversation.
 `;
 
       const response = await ai.models.generateContent({
