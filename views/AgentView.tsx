@@ -25,44 +25,42 @@ export const AgentView: React.FC<AgentViewProps> = ({ preferences, onSave }) => 
   const roles = ['AE', 'BDR', 'Founder', 'CSM', 'VP Sales'];
   
   const toneOptions = [
-    { id: 'friendly', label: 'Friendly', desc: 'Warm and approachable. Focuses on building relationship.' },
-    { id: 'direct', label: 'Direct', desc: 'Straight to the point. No fluff, respects time.' },
-    { id: 'professional', label: 'Professional', desc: 'Formal and respectful. Standard business etiquette.' },
-    { id: 'casual', label: 'Casual', desc: 'Relaxed and informal. Like texting a peer.' },
-    { id: 'challenger', label: 'Challenger', desc: 'Bold and provocative. Pushes back constructively.' },
+    { id: 'friendly', label: 'Friendly', desc: 'Warm and approachable.' },
+    { id: 'direct', label: 'Direct', desc: 'Straight to the point.' },
+    { id: 'professional', label: 'Professional', desc: 'Formal and respectful.' },
+    { id: 'casual', label: 'Casual', desc: 'Relaxed and informal.' },
+    { id: 'challenger', label: 'Challenger', desc: 'Bold and provocative.' },
   ];
   
   const styleOptions = [
-    { id: 'short', label: 'Short & Punchy', desc: 'Quick check-ins that respect time.' },
-    { id: 'detailed', label: 'Detailed', desc: 'Comprehensive recap of value & context.' },
-    { id: 'urgent', label: 'Urgent', desc: 'Drive immediate action or close file.' },
-    { id: 'soft', label: 'Soft Touch', desc: 'Gentle, low-pressure reminders.' },
-    { id: 'storytelling', label: 'Storytelling', desc: 'Persuasive narrative approach.' },
+    { id: 'short', label: 'Short & Punchy', desc: 'Respects time.' },
+    { id: 'detailed', label: 'Detailed', desc: 'Full context recap.' },
+    { id: 'urgent', label: 'Urgent', desc: 'Drive action now.' },
+    { id: 'soft', label: 'Soft Touch', desc: 'Low pressure.' },
+    { id: 'storytelling', label: 'Storytelling', desc: 'Persuasive narrative.' },
   ];
 
   return (
-    <div className="max-w-4xl mx-auto animate-fade-in space-y-12 pb-28">
-      <div className="border-b border-gray-200/50 dark:border-gray-700/50 pb-8">
-        <h2 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3 tracking-tight">
-          <div className="bg-pastel-primary/10 p-2.5 rounded-xl">
-             <Bot className="text-pastel-primary" size={32} strokeWidth={1.5} /> 
-          </div>
+    <div className="max-w-4xl mx-auto animate-fade-in space-y-8 pb-28">
+      <div className="border-b border-gray-200 dark:border-zinc-800 pb-6">
+        <h2 className="text-2xl font-semibold text-gray-900 dark:text-white flex items-center gap-2 tracking-tight">
+          <Bot className="text-brand-primary" size={24} />
           My AI Agent
         </h2>
-        <p className="text-gray-500 dark:text-gray-400 mt-3 text-lg">
-          Tune how Drift writes your follow-ups so it matches your role, tone, and product voice perfectly.
+        <p className="text-gray-500 dark:text-gray-400 mt-2 text-base">
+          Tune how Drift writes your follow-ups to match your voice.
         </p>
       </div>
 
-      <div className="space-y-12">
+      <div className="space-y-10">
         {/* Role Section */}
         <section>
-          <label className="block text-base font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-4">Your Role</label>
+          <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-3">Your Role</label>
           <div className="relative">
             <select 
               value={localPrefs.role}
               onChange={(e) => update('role', e.target.value)}
-              className="block w-full sm:w-1/2 pl-4 pr-10 py-3.5 text-base border-gray-200 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-pastel-primary/50 focus:border-pastel-primary/50 rounded-xl glass-card shadow-sm dark:bg-slate-800 dark:text-white"
+              className="block w-full sm:w-1/2 px-3 py-2 text-sm border border-gray-200 dark:border-zinc-700 rounded-md focus:outline-none focus:ring-1 focus:ring-brand-primary bg-white dark:bg-zinc-800 dark:text-white shadow-sm"
             >
               {roles.map(r => <option key={r} value={r}>{r}</option>)}
               <option value="Other">Other</option>
@@ -72,32 +70,27 @@ export const AgentView: React.FC<AgentViewProps> = ({ preferences, onSave }) => 
 
         {/* Tone Section */}
         <section>
-          <label className="block text-base font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-4">Tone of Voice</label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-3">Tone of Voice</label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {toneOptions.map((option) => {
               const isSelected = localPrefs.tone === option.id;
               return (
                 <button
                   key={option.id}
                   onClick={() => update('tone', option.id)}
-                  className={`group relative flex flex-col items-start p-6 rounded-2xl border text-left transition-all duration-300 ${
+                  className={`group relative flex flex-col items-start p-4 rounded-lg border text-left transition-all ${
                     isSelected
-                      ? 'border-pastel-primary/50 bg-pastel-primary/10 shadow-lg shadow-pastel-primary/10 dark:bg-pastel-primary/20'
-                      : 'border-white/40 dark:border-white/10 bg-white/40 dark:bg-slate-800/40 hover:bg-white/70 dark:hover:bg-slate-800/60 hover:shadow-md'
+                      ? 'border-brand-primary bg-blue-50/50 dark:bg-blue-900/10 ring-1 ring-brand-primary'
+                      : 'border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 hover:border-gray-300 dark:hover:border-zinc-600'
                   }`}
                 >
-                  <div className="flex justify-between w-full mb-3">
-                    <span className={`font-bold text-base ${isSelected ? 'text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-300'}`}>
+                  <div className="flex justify-between w-full mb-1">
+                    <span className={`font-semibold text-sm ${isSelected ? 'text-brand-primary' : 'text-gray-900 dark:text-white'}`}>
                       {option.label}
                     </span>
-                    <div className={`
-                      h-6 w-6 rounded-full flex items-center justify-center transition-all duration-300 shadow-sm
-                      ${isSelected ? 'bg-pastel-primary text-white scale-100' : 'bg-gray-100 dark:bg-slate-700 scale-90 opacity-0 group-hover:opacity-100'}
-                    `}>
-                       <Check size={14} strokeWidth={2.5} />
-                    </div>
+                    {isSelected && <Check size={14} className="text-brand-primary" strokeWidth={3} />}
                   </div>
-                  <span className={`text-sm leading-relaxed font-medium ${isSelected ? 'text-gray-600 dark:text-gray-300' : 'text-gray-500 dark:text-gray-400'}`}>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
                     {option.desc}
                   </span>
                 </button>
@@ -108,32 +101,27 @@ export const AgentView: React.FC<AgentViewProps> = ({ preferences, onSave }) => 
 
         {/* Style Section */}
         <section>
-          <label className="block text-base font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-4">Follow-Up Style</label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-3">Follow-Up Style</label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {styleOptions.map((option) => {
               const isSelected = localPrefs.style === option.id;
               return (
                 <button
                   key={option.id}
                   onClick={() => update('style', option.id)}
-                   className={`group relative flex flex-col items-start p-6 rounded-2xl border text-left transition-all duration-300 ${
+                   className={`group relative flex flex-col items-start p-4 rounded-lg border text-left transition-all ${
                     isSelected
-                      ? 'border-pastel-secondary/50 bg-pastel-secondary/10 shadow-lg shadow-pastel-secondary/10 dark:bg-pastel-secondary/20'
-                      : 'border-white/40 dark:border-white/10 bg-white/40 dark:bg-slate-800/40 hover:bg-white/70 dark:hover:bg-slate-800/60 hover:shadow-md'
+                      ? 'border-brand-primary bg-blue-50/50 dark:bg-blue-900/10 ring-1 ring-brand-primary'
+                      : 'border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 hover:border-gray-300 dark:hover:border-zinc-600'
                   }`}
                 >
-                  <div className="flex justify-between w-full mb-3">
-                    <span className={`font-bold text-base ${isSelected ? 'text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-300'}`}>
+                  <div className="flex justify-between w-full mb-1">
+                    <span className={`font-semibold text-sm ${isSelected ? 'text-brand-primary' : 'text-gray-900 dark:text-white'}`}>
                       {option.label}
                     </span>
-                    <div className={`
-                      h-6 w-6 rounded-full flex items-center justify-center transition-all duration-300 shadow-sm
-                      ${isSelected ? 'bg-pastel-secondary text-white scale-100' : 'bg-gray-100 dark:bg-slate-700 scale-90 opacity-0 group-hover:opacity-100'}
-                    `}>
-                       <Check size={14} strokeWidth={2.5} />
-                    </div>
+                    {isSelected && <Check size={14} className="text-brand-primary" strokeWidth={3} />}
                   </div>
-                  <span className={`text-sm leading-relaxed font-medium ${isSelected ? 'text-gray-600 dark:text-gray-300' : 'text-gray-500 dark:text-gray-400'}`}>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
                     {option.desc}
                   </span>
                 </button>
@@ -144,49 +132,49 @@ export const AgentView: React.FC<AgentViewProps> = ({ preferences, onSave }) => 
 
         {/* Product Description */}
         <section>
-          <label className="block text-base font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-2">
+          <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
             Product / Offer Description
           </label>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 font-medium">Briefly describe what you sell. The AI uses this to add context.</p>
           <textarea
             rows={4}
             value={localPrefs.productDescription}
             onChange={(e) => update('productDescription', e.target.value)}
-            className="glass-card shadow-inner focus:ring-pastel-primary/50 focus:border-pastel-primary/50 block w-full text-base border-gray-200 dark:border-gray-600 rounded-xl p-4 border placeholder-gray-400 bg-white/60 dark:bg-slate-800/60 dark:text-white"
+            className="input-field block w-full text-sm rounded-md p-3 bg-white dark:bg-zinc-900 text-gray-900 dark:text-white placeholder-gray-400"
             placeholder="e.g. We sell a project management tool for creative agencies..."
           />
+          <p className="text-xs text-gray-500 mt-2">The AI uses this to add context to your emails.</p>
         </section>
 
         {/* Calendar Link */}
         <section>
-          <label className="block text-base font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-2">
+          <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
             Calendar / Booking Link
           </label>
           <input
             type="text"
             value={localPrefs.calendarLink}
             onChange={(e) => update('calendarLink', e.target.value)}
-            className="glass-card shadow-inner focus:ring-pastel-primary/50 focus:border-pastel-primary/50 block w-full text-base border-gray-200 dark:border-gray-600 rounded-xl p-4 border placeholder-gray-400 bg-white/60 dark:bg-slate-800/60 dark:text-white"
+            className="input-field block w-full text-sm rounded-md p-3 bg-white dark:bg-zinc-900 text-gray-900 dark:text-white placeholder-gray-400"
             placeholder="https://calendly.com/your-name"
           />
         </section>
       </div>
 
       {/* Footer / Save */}
-      <div className="sticky bottom-6 glass-panel backdrop-blur-xl p-4 rounded-2xl border border-white/50 dark:border-white/10 shadow-2xl flex justify-between items-center mt-12 z-20">
-        <span className="text-sm text-gray-500 dark:text-gray-400 font-medium px-2">
-          {isSaved ? "Preferences saved successfully." : "Changes are not saved automatically."}
+      <div className="fixed bottom-0 left-0 lg:left-64 right-0 border-t border-gray-200 dark:border-zinc-800 bg-white dark:bg-[#111] p-4 flex justify-between items-center z-20">
+        <span className="text-sm text-gray-500 font-medium px-4">
+          {isSaved ? "Saved." : "Unsaved changes."}
         </span>
         <button
           onClick={handleSave}
-          className={`flex items-center gap-2 px-8 py-3 rounded-xl font-bold transition-all shadow-lg text-base transform active:scale-95 ${
+          className={`flex items-center gap-2 px-6 py-2 rounded-md font-medium text-sm transition-all ${
             isSaved 
-              ? 'liquid-button bg-pastel-success/20 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800' 
-              : 'liquid-primary text-white'
+              ? 'bg-green-50 text-green-700 border border-green-200' 
+              : 'btn-primary'
           }`}
         >
           {isSaved ? 'Saved' : 'Save Preferences'}
-          {!isSaved && <Save size={20} strokeWidth={2} />}
+          {!isSaved && <Save size={16} />}
         </button>
       </div>
     </div>

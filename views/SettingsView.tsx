@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { UserProfile } from '../types';
-import { User, Mail, Globe, Bell, Shield, LogOut, Camera, Monitor, Smartphone, Moon, Sun } from 'lucide-react';
+import { User, Bell, Shield, CreditCard, Check, Download, Moon, Sun } from 'lucide-react';
 
 interface SettingsViewProps {
   profile: UserProfile;
@@ -9,8 +9,27 @@ interface SettingsViewProps {
   onToggleDarkMode: () => void;
 }
 
+const Toggle = ({ checked, onChange }: { checked: boolean; onChange: () => void }) => (
+  <button
+    onClick={onChange}
+    type="button"
+    className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2 ${
+      checked ? 'bg-brand-primary' : 'bg-gray-200 dark:bg-zinc-700'
+    }`}
+    role="switch"
+    aria-checked={checked}
+  >
+    <span
+      aria-hidden="true"
+      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+        checked ? 'translate-x-5' : 'translate-x-0'
+      }`}
+    />
+  </button>
+);
+
 export const SettingsView: React.FC<SettingsViewProps> = ({ profile, onUpdateProfile, isDarkMode, onToggleDarkMode }) => {
-  const [activeTab, setActiveTab] = useState<'general' | 'notifications' | 'account'>('general');
+  const [activeTab, setActiveTab] = useState<'general' | 'notifications' | 'billing' | 'account'>('general');
   const [localProfile, setLocalProfile] = useState<UserProfile>(profile);
 
   const handleSave = (key: keyof UserProfile, value: any) => {
@@ -33,29 +52,35 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ profile, onUpdatePro
 
   return (
     <div className="max-w-4xl mx-auto animate-fade-in pb-20">
-      <h2 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight mb-8">Settings</h2>
+      <h2 className="text-2xl font-semibold text-gray-900 dark:text-white tracking-tight mb-8">Settings</h2>
 
       <div className="flex flex-col md:flex-row gap-8">
         {/* Settings Sidebar */}
-        <div className="w-full md:w-64 flex-shrink-0">
-          <div className="glass-panel p-2 rounded-xl flex flex-col gap-1 sticky top-24">
+        <div className="w-full md:w-56 flex-shrink-0">
+          <div className="flex flex-col gap-1 sticky top-24">
             <button 
               onClick={() => setActiveTab('general')}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${activeTab === 'general' ? 'bg-pastel-primary/10 text-pastel-dark dark:text-pastel-primary' : 'text-gray-500 hover:bg-white/50 dark:text-gray-400 dark:hover:bg-white/5'}`}
+              className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'general' ? 'bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white' : 'text-gray-500 hover:text-gray-900 dark:hover:text-gray-300'}`}
             >
-              <User size={18} strokeWidth={1.5} /> General
+              <User size={16} /> General
             </button>
             <button 
               onClick={() => setActiveTab('notifications')}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${activeTab === 'notifications' ? 'bg-pastel-primary/10 text-pastel-dark dark:text-pastel-primary' : 'text-gray-500 hover:bg-white/50 dark:text-gray-400 dark:hover:bg-white/5'}`}
+              className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'notifications' ? 'bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white' : 'text-gray-500 hover:text-gray-900 dark:hover:text-gray-300'}`}
             >
-              <Bell size={18} strokeWidth={1.5} /> Notifications
+              <Bell size={16} /> Notifications
+            </button>
+            <button 
+              onClick={() => setActiveTab('billing')}
+              className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'billing' ? 'bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white' : 'text-gray-500 hover:text-gray-900 dark:hover:text-gray-300'}`}
+            >
+              <CreditCard size={16} /> Billing
             </button>
             <button 
               onClick={() => setActiveTab('account')}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${activeTab === 'account' ? 'bg-pastel-primary/10 text-pastel-dark dark:text-pastel-primary' : 'text-gray-500 hover:bg-white/50 dark:text-gray-400 dark:hover:bg-white/5'}`}
+              className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'account' ? 'bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white' : 'text-gray-500 hover:text-gray-900 dark:hover:text-gray-300'}`}
             >
-              <Shield size={18} strokeWidth={1.5} /> Account
+              <Shield size={16} /> Account
             </button>
           </div>
         </div>
@@ -67,108 +92,101 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ profile, onUpdatePro
           {activeTab === 'general' && (
             <div className="space-y-8 animate-fade-in">
               {/* Profile Section */}
-              <section className="glass-panel p-8 rounded-2xl">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Public Profile</h3>
+              <section className="layer-panel p-6 rounded-lg bg-white dark:bg-zinc-900">
+                <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-6">Public Profile</h3>
                 
                 <div className="flex items-center gap-6 mb-8">
-                  <div className="relative group cursor-pointer">
-                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-slate-700 dark:to-slate-600 flex items-center justify-center text-xl font-bold text-gray-600 dark:text-gray-200 shadow-inner border-2 border-white dark:border-white/10">
+                  <div className="w-16 h-16 rounded-full bg-gray-200 dark:bg-zinc-800 flex items-center justify-center text-lg font-bold text-gray-500 border border-gray-300 dark:border-zinc-700">
                       JD
-                    </div>
-                    <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Camera className="text-white" size={20} />
-                    </div>
                   </div>
                   <div>
-                    <button className="liquid-button px-4 py-2 rounded-lg text-sm font-bold text-gray-700 dark:text-white mb-2">Change Avatar</button>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">JPG, GIF or PNG. 1MB max.</p>
+                    <button className="px-3 py-1.5 rounded-md border border-gray-300 dark:border-zinc-600 text-xs font-semibold text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors mb-1">Change Avatar</button>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Full Name</label>
+                    <label className="block text-xs font-semibold text-gray-500 mb-1.5">Full Name</label>
                     <input 
                       type="text" 
                       value={localProfile.name}
                       onChange={(e) => handleSave('name', e.target.value)}
-                      className="w-full bg-white/50 dark:bg-slate-900/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pastel-primary/30 dark:text-white"
+                      className="input-field w-full rounded-md px-3 py-2 text-sm text-gray-900 dark:text-white dark:bg-zinc-900"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Email Address</label>
+                    <label className="block text-xs font-semibold text-gray-500 mb-1.5">Email Address</label>
                     <input 
                       type="email" 
                       value={localProfile.email}
                       onChange={(e) => handleSave('email', e.target.value)}
-                      className="w-full bg-white/50 dark:bg-slate-900/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pastel-primary/30 dark:text-white"
+                      className="input-field w-full rounded-md px-3 py-2 text-sm text-gray-900 dark:text-white dark:bg-zinc-900"
                     />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Job Title</label>
+                    <label className="block text-xs font-semibold text-gray-500 mb-1.5">Job Title</label>
                     <input 
                       type="text" 
                       value={localProfile.title}
                       onChange={(e) => handleSave('title', e.target.value)}
-                      className="w-full bg-white/50 dark:bg-slate-900/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pastel-primary/30 dark:text-white"
+                      className="input-field w-full rounded-md px-3 py-2 text-sm text-gray-900 dark:text-white dark:bg-zinc-900"
                     />
                   </div>
                 </div>
               </section>
 
               {/* Preferences Section */}
-              <section className="glass-panel p-8 rounded-2xl">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Preferences</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <section className="layer-panel p-6 rounded-lg bg-white dark:bg-zinc-900">
+                <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-6">Preferences</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                    <div>
-                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Language</label>
+                    <label className="block text-xs font-semibold text-gray-500 mb-1.5">Language</label>
                     <div className="relative">
                       <select 
                         value={localProfile.language}
                         onChange={(e) => handleSave('language', e.target.value)}
-                        className="w-full bg-white/50 dark:bg-slate-900/50 border border-gray-200 dark:border-white/10 rounded-xl pl-4 pr-10 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pastel-primary/30 dark:text-white appearance-none"
+                        className="input-field w-full rounded-md px-3 py-2 text-sm text-gray-900 dark:text-white dark:bg-zinc-900 appearance-none"
                       >
                         <option value="en">English (US)</option>
                         <option value="fr">French</option>
                         <option value="es">Spanish</option>
                         <option value="de">German</option>
                       </select>
-                      <Globe size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Timezone</label>
+                    <label className="block text-xs font-semibold text-gray-500 mb-1.5">Timezone</label>
                     <select 
                       value={localProfile.timezone}
                       onChange={(e) => handleSave('timezone', e.target.value)}
-                      className="w-full bg-white/50 dark:bg-slate-900/50 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pastel-primary/30 dark:text-white"
+                      className="input-field w-full rounded-md px-3 py-2 text-sm text-gray-900 dark:text-white dark:bg-zinc-900"
                     >
-                      <option value="PST">Pacific Time (US & Canada)</option>
-                      <option value="EST">Eastern Time (US & Canada)</option>
+                      <option value="PST">Pacific Time</option>
+                      <option value="EST">Eastern Time</option>
                       <option value="GMT">Greenwich Mean Time</option>
                       <option value="CET">Central European Time</option>
                     </select>
                   </div>
                 </div>
 
-                <div className="mt-8 pt-8 border-t border-gray-200/50 dark:border-gray-700/50">
+                <div className="mt-6 pt-6 border-t border-gray-100 dark:border-zinc-800">
                    <div className="flex items-center justify-between">
                       <div>
-                        <p className="font-bold text-sm text-gray-800 dark:text-white">Appearance</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Customize how Drift looks on your device.</p>
+                        <p className="font-medium text-sm text-gray-900 dark:text-white">Appearance</p>
+                        <p className="text-xs text-gray-500 mt-1">Light or dark mode.</p>
                       </div>
-                      <div className="flex p-1 bg-gray-100 dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-white/5">
+                      <div className="flex p-1 bg-gray-100 dark:bg-zinc-800 rounded-md">
                         <button 
                           onClick={() => isDarkMode && onToggleDarkMode()}
-                          className={`p-2 rounded-md transition-all ${!isDarkMode ? 'bg-white shadow-sm text-amber-500' : 'text-gray-400 hover:text-gray-600'}`}
+                          className={`p-1.5 rounded transition-all ${!isDarkMode ? 'bg-white shadow-sm text-gray-900' : 'text-gray-400 hover:text-gray-600'}`}
                         >
-                          <Sun size={18} />
+                          <Sun size={16} />
                         </button>
                         <button 
                            onClick={() => !isDarkMode && onToggleDarkMode()}
-                           className={`p-2 rounded-md transition-all ${isDarkMode ? 'bg-slate-600 shadow-sm text-indigo-300' : 'text-gray-400 hover:text-gray-600'}`}
+                           className={`p-1.5 rounded transition-all ${isDarkMode ? 'bg-zinc-600 text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                         >
-                          <Moon size={18} />
+                          <Moon size={16} />
                         </button>
                       </div>
                    </div>
@@ -180,104 +198,152 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ profile, onUpdatePro
           {/* NOTIFICATIONS TAB */}
           {activeTab === 'notifications' && (
             <div className="space-y-8 animate-fade-in">
-              <section className="glass-panel p-8 rounded-2xl">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Email Notifications</h3>
+              <section className="layer-panel p-6 rounded-lg bg-white dark:bg-zinc-900">
+                <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-6">Email Notifications</h3>
                 
                 <div className="space-y-6">
                   <div className="flex items-start justify-between">
-                    <div className="flex gap-4">
-                      <div className="mt-1 p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-500 rounded-lg">
-                        <Mail size={20} />
-                      </div>
-                      <div>
-                        <p className="font-bold text-sm text-gray-800 dark:text-white">Daily Digest</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Receive a summary of stalled deals every morning at 9 AM.</p>
-                      </div>
+                    <div>
+                        <p className="font-medium text-sm text-gray-900 dark:text-white">Daily Digest</p>
+                        <p className="text-xs text-gray-500 mt-1">Summary of stalled deals at 9 AM.</p>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input 
-                        type="checkbox" 
-                        checked={localProfile.notifications.emailDigest}
-                        onChange={() => handleNotificationToggle('emailDigest')}
-                        className="sr-only peer" 
-                      />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-pastel-primary"></div>
-                    </label>
+                    <Toggle 
+                      checked={localProfile.notifications.emailDigest} 
+                      onChange={() => handleNotificationToggle('emailDigest')} 
+                    />
                   </div>
 
                   <div className="flex items-start justify-between">
-                    <div className="flex gap-4">
-                      <div className="mt-1 p-2 bg-purple-50 dark:bg-purple-900/20 text-purple-500 rounded-lg">
-                        <Monitor size={20} />
-                      </div>
-                      <div>
-                         <p className="font-bold text-sm text-gray-800 dark:text-white">Product Updates</p>
-                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">News about features and improvements to Drift.</p>
-                      </div>
+                    <div>
+                         <p className="font-medium text-sm text-gray-900 dark:text-white">Product Updates</p>
+                         <p className="text-xs text-gray-500 mt-1">News about features and improvements.</p>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input 
-                        type="checkbox" 
-                        checked={localProfile.notifications.marketing}
-                        onChange={() => handleNotificationToggle('marketing')}
-                        className="sr-only peer" 
-                      />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-pastel-primary"></div>
-                    </label>
+                    <Toggle 
+                      checked={localProfile.notifications.marketing} 
+                      onChange={() => handleNotificationToggle('marketing')} 
+                    />
                   </div>
                 </div>
               </section>
 
-              <section className="glass-panel p-8 rounded-2xl">
-                 <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Push Notifications</h3>
+              <section className="layer-panel p-6 rounded-lg bg-white dark:bg-zinc-900">
+                 <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-6">Push Notifications</h3>
                  <div className="flex items-start justify-between">
-                    <div className="flex gap-4">
-                      <div className="mt-1 p-2 bg-amber-50 dark:bg-amber-900/20 text-amber-500 rounded-lg">
-                        <Smartphone size={20} />
-                      </div>
-                      <div>
-                         <p className="font-bold text-sm text-gray-800 dark:text-white">Browser Notifications</p>
-                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Get notified immediately when a deal becomes stalled.</p>
-                      </div>
+                    <div>
+                         <p className="font-medium text-sm text-gray-900 dark:text-white">Browser Notifications</p>
+                         <p className="text-xs text-gray-500 mt-1">Immediate alerts for stalled deals.</p>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input 
-                        type="checkbox" 
-                        checked={localProfile.notifications.pushDesktop}
-                        onChange={() => handleNotificationToggle('pushDesktop')}
-                        className="sr-only peer" 
-                      />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-pastel-primary"></div>
-                    </label>
+                    <Toggle 
+                      checked={localProfile.notifications.pushDesktop} 
+                      onChange={() => handleNotificationToggle('pushDesktop')} 
+                    />
                   </div>
               </section>
             </div>
           )}
 
+           {/* BILLING TAB */}
+           {activeTab === 'billing' && (
+                <div className="space-y-8 animate-fade-in">
+                    {/* Plan Details */}
+                    <section className="layer-panel p-6 rounded-lg bg-white dark:bg-zinc-900">
+                        <div className="flex items-center justify-between mb-6">
+                            <h3 className="text-base font-semibold text-gray-900 dark:text-white">Current Plan</h3>
+                            <span className="px-2.5 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary text-xs font-semibold">Active</span>
+                        </div>
+                        <div className="flex items-end gap-1 mb-2">
+                             <span className="text-3xl font-bold text-gray-900 dark:text-white">$29</span>
+                             <span className="text-gray-500 mb-1">/ month</span>
+                        </div>
+                        <p className="text-sm text-gray-500 mb-6">Pro Plan • Billed monthly</p>
+                        <button className="btn-primary px-4 py-2 text-sm shadow-sm">Manage Subscription</button>
+                    </section>
+
+                    {/* Usage */}
+                     <section className="layer-panel p-6 rounded-lg bg-white dark:bg-zinc-900">
+                        <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-4">Usage</h3>
+                        <div className="space-y-4">
+                            <div>
+                                <div className="flex justify-between text-sm mb-2">
+                                    <span className="font-medium text-gray-700 dark:text-gray-300">AI Generations</span>
+                                    <span className="text-gray-500">842 / 1,000</span>
+                                </div>
+                                <div className="w-full bg-gray-100 dark:bg-zinc-800 rounded-full h-2">
+                                    <div className="bg-brand-primary h-2 rounded-full" style={{ width: '84%' }}></div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Payment Method */}
+                    <section className="layer-panel p-6 rounded-lg bg-white dark:bg-zinc-900">
+                        <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-4">Payment Method</h3>
+                        <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-zinc-700 rounded-lg">
+                            <div className="flex items-center gap-4">
+                                <div className="w-10 h-6 bg-gray-200 dark:bg-zinc-700 rounded-sm flex items-center justify-center text-xs font-bold text-gray-500">VISA</div>
+                                <div>
+                                    <p className="text-sm font-medium text-gray-900 dark:text-white">•••• 4242</p>
+                                    <p className="text-xs text-gray-500">Expires 12/2028</p>
+                                </div>
+                            </div>
+                            <button className="text-xs font-medium text-gray-500 hover:text-gray-900 dark:hover:text-white">Edit</button>
+                        </div>
+                    </section>
+
+                    {/* Invoice History */}
+                    <section className="layer-panel p-6 rounded-lg bg-white dark:bg-zinc-900">
+                         <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-4">Invoice History</h3>
+                         <div className="space-y-1">
+                            {[
+                                { date: 'Oct 1, 2023', amount: '$29.00', status: 'Paid' },
+                                { date: 'Sep 1, 2023', amount: '$29.00', status: 'Paid' },
+                                { date: 'Aug 1, 2023', amount: '$29.00', status: 'Paid' },
+                            ].map((inv, i) => (
+                                <div key={i} className="flex items-center justify-between py-3 border-b border-gray-100 dark:border-zinc-800 last:border-0">
+                                    <div className="flex items-center gap-4">
+                                        <div className="p-1.5 bg-green-50 dark:bg-green-900/20 rounded-full text-green-600 dark:text-green-400">
+                                            <Check size={12} strokeWidth={3} />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-medium text-gray-900 dark:text-white">Invoice #{1024 - i}</p>
+                                            <p className="text-xs text-gray-500">{inv.date}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-4">
+                                        <span className="text-sm font-medium text-gray-900 dark:text-white">{inv.amount}</span>
+                                        <button className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
+                                            <Download size={16} />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                         </div>
+                    </section>
+                </div>
+            )}
+
            {/* ACCOUNT TAB */}
            {activeTab === 'account' && (
             <div className="space-y-8 animate-fade-in">
-              <section className="glass-panel p-8 rounded-2xl border-l-4 border-l-rose-400">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Danger Zone</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Manage your session and account data.</p>
+              <section className="layer-panel p-6 rounded-lg border-l-4 border-l-rose-500 bg-white dark:bg-zinc-900">
+                <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-2">Danger Zone</h3>
+                <p className="text-sm text-gray-500 mb-6">Irreversible account actions.</p>
                 
                 <div className="flex flex-col gap-4">
-                  <div className="flex items-center justify-between p-4 bg-white/40 dark:bg-slate-800/40 rounded-xl border border-white/50 dark:border-white/5">
+                  <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-bold text-gray-800 dark:text-gray-200">Sign Out</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">End your current session.</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">Sign Out</p>
                     </div>
-                    <button className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm font-bold text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors">
-                      <LogOut size={16} /> Log Out
+                    <button className="px-3 py-1.5 border border-gray-300 dark:border-zinc-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors">
+                      Log Out
                     </button>
                   </div>
                   
-                  <div className="flex items-center justify-between p-4 bg-white/40 dark:bg-slate-800/40 rounded-xl border border-white/50 dark:border-white/5">
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-zinc-800">
                     <div>
-                      <p className="text-sm font-bold text-gray-800 dark:text-gray-200">Delete Account</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Permanently remove all data.</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">Delete Account</p>
                     </div>
-                    <button className="flex items-center gap-2 px-4 py-2 bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-900 rounded-lg text-sm font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/40 transition-colors">
+                    <button className="px-3 py-1.5 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900 rounded-md text-sm font-medium hover:bg-rose-100 transition-colors">
                       Delete Account
                     </button>
                   </div>
