@@ -88,13 +88,11 @@ export const InsightsView: React.FC<InsightsViewProps> = ({ deals, onSelectDeal 
   return (
     <div className="space-y-8 animate-fade-in pb-24 max-w-7xl mx-auto px-6 w-full">
       <div className="flex items-center gap-3 mb-2">
-        <div className="p-2 bg-gray-100 dark:bg-zinc-800 rounded-md border border-gray-200 dark:border-zinc-700">
-          <TrendingUp size={20} className="text-gray-700 dark:text-white" />
-        </div>
         <div>
           <h2 className="text-2xl font-semibold text-gray-900 dark:text-white tracking-tight">Pipeline Insights</h2>
         </div>
       </div>
+     
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

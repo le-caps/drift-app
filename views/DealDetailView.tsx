@@ -269,7 +269,7 @@ export const DealDetailView: React.FC<DealDetailViewProps> = ({
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900 dark:text-white">AI Assistant</h3>
-                  <p className="text-xs text-gray-500">Generate personalized follow-ups.</p>
+                  <p className="text-xs text-gray-500">Generate personalized AI follow-ups — review & edit before sending</p>
                 </div>
               </div>
               
@@ -294,9 +294,9 @@ export const DealDetailView: React.FC<DealDetailViewProps> = ({
                       <div className="w-16 h-16 bg-white dark:bg-zinc-800 rounded-full shadow-sm flex items-center justify-center mb-4 border border-gray-100 dark:border-zinc-700">
                           <Sparkles size={24} className="text-brand-primary" />
                       </div>
-                      <h4 className="text-gray-900 dark:text-white font-medium mb-1">Ready to draft?</h4>
+                      <h4 className="text-gray-900 dark:text-white font-medium mb-1">Ready to draft a personalized follow-up?</h4>
                       <p className="text-sm text-gray-500 max-w-xs mb-6">
-                          I'll use the deal context, notes, and your agent preferences to write a tailored email.
+                          I'll use the deal context, notes, and your preferences to write a tailored email.
                       </p>
                       <button 
                         onClick={handleGenerate}
@@ -311,7 +311,7 @@ export const DealDetailView: React.FC<DealDetailViewProps> = ({
               {isGenerating && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-[2px] rounded-lg z-10 transition-all">
                    <div className="w-12 h-12 border-2 border-brand-primary/30 border-t-brand-primary rounded-full animate-spin mb-4"></div>
-                   <p className="text-sm font-medium text-gray-700 dark:text-gray-200">Analyzing deal context...</p>
+                   <p className="text-sm font-medium text-gray-700 dark:text-gray-200">Analyzing deal context, notes, and preferences...</p>
                 </div>
               )}
 

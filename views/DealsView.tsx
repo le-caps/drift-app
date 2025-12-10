@@ -3,7 +3,12 @@ import { Deal, Priority } from '../types';
 import { 
   Clock, Search, SlidersHorizontal, ArrowDownWideNarrow, 
   Handshake, FileText, CheckCircle2, Compass, ClipboardList, CircleDashed,
-  User, ChevronLeft, ChevronRight, Building
+  User, ChevronLeft, ChevronRight, Building,
+  DollarSign,
+  DollarSignIcon,
+  BadgeDollarSign,
+  LucideBadgeDollarSign,
+  CircleDollarSign
 } from 'lucide-react';
 
 interface DealsViewProps {
@@ -99,8 +104,10 @@ export const DealsView: React.FC<DealsViewProps> = ({ deals, onSelectDeal }) => 
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h2 className="text-2xl font-semibold text-gray-900 dark:text-white tracking-tight">Stalled Deals</h2>
-          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+          <h2 className="text-2xl font-semibold text-gray-900 dark:text-white flex items-center gap-2 tracking-tight">
+          My Stalled Deals
+        </h2>
+          <p className="text-gray-500 dark:text-gray-400 mt-2 text-base">
             Action required on {filteredAndSortedDeals.length} opportunities
           </p>
         </div>
