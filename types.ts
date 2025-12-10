@@ -22,6 +22,7 @@ export interface Deal {
 }
 
 export interface AgentPreferences {
+  senderName: string;
   role: 'AE' | 'BDR' | 'Founder' | 'CSM' | 'VP Sales' | 'Other';
   tone: 'friendly' | 'direct' | 'professional' | 'casual' | 'challenger';
   style: 'short' | 'detailed' | 'urgent' | 'soft' | 'storytelling';
