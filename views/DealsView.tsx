@@ -228,7 +228,7 @@ export const DealsView: React.FC<DealsViewProps> = ({ deals, onSelectDeal }) => 
                               <span className="text-[10px] text-gray-400 dark:text-gray-500 font-semibold uppercase tracking-wider">Inactivity</span>
                               <div className={`flex items-center gap-1.5 text-sm font-medium ${deal.daysInactive > 14 ? 'text-rose-600 dark:text-rose-400' : 'text-gray-700 dark:text-gray-300'}`}>
                                   <Clock size={15} strokeWidth={1.5} className="shrink-0" />
-                                  {deal.daysInactive}d
+                                  {deal.daysInactive} days
                               </div>
                           </div>
 
