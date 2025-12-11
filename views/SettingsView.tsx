@@ -39,7 +39,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   onToggleDarkMode,
   deals,
 }) => {
-  const [activeTab, setActiveTab] = useState<'general' | 'risk' | 'notifications' | 'billing' | 'account'>('general');
+  const [activeTab, setActiveTab] = useState<'general' | 'notifications' | 'billing' | 'account'>('general');
   const [localProfile, setLocalProfile] = useState<UserProfile>(profile);
 
   const handleSave = (key: keyof UserProfile, value: any) => {
@@ -95,16 +95,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <User size={16} /> General
             </button>
 
-            <button
-              onClick={() => setActiveTab('risk')}
-              className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                activeTab === 'risk'
-                  ? 'bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white'
-                  : 'text-gray-500 hover:text-gray-900 dark:hover:text-gray-300'
-              }`}
-            >
-              <Shield size={16} /> Deal Risk
-            </button>
 
             <button
               onClick={() => setActiveTab('notifications')}
@@ -256,124 +246,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
           )}
 
-          {/* RISK TAB */}
-          {activeTab === 'risk' && (
-  <section className="layer-panel p-6 rounded-lg bg-white dark:bg-zinc-900 animate-fade-in space-y-10">
-
-    {/* HEADER */}
-    <div>
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Deal Risk Settings</h3>
-      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-        Customize how deals are flagged and how the risk score is calculated.
-      </p>
-    </div>
-
-    {/* STALLED THRESHOLD */}
-    <div>
-      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-        Days before a deal is considered stalled
-      </label>
-
-      <input
-        type="number"
-        className="mt-2 w-32 px-3 py-2 text-sm rounded-md border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-gray-900 dark:text-white"
-        value={localProfile.stalledThresholdDays}
-        min={1}
-        max={120}
-        onChange={(e) => handleSave('stalledThresholdDays', Number(e.target.value))}
-      />
-
-      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-        Deals inactive longer than this threshold are flagged as stalled.
-      </p>
-    </div>
-
-    {/* WEIGHTS — USING NEW SLIDER A */}
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-
-      <WeightSlider
-        label="Weight: Deal Amount"
-        value={localProfile.riskWeightAmount}
-        onChange={(v) => handleSave("riskWeightAmount", v)}
-      />
-
-      <WeightSlider
-        label="Weight: Deal Stage"
-        value={localProfile.riskWeightStage}
-        onChange={(v) => handleSave("riskWeightStage", v)}
-      />
-
-      <WeightSlider
-        label="Weight: Inactivity"
-        value={localProfile.riskWeightInactivity}
-        onChange={(v) => handleSave("riskWeightInactivity", v)}
-      />
-
-      <WeightSlider
-        label="Weight: Notes Risk Factors"
-        value={localProfile.riskWeightNotes}
-        onChange={(v) => handleSave("riskWeightNotes", v)}
-      />
-
-    </div>
-
-    {/* LIVE RISK DISTRIBUTION FULL WIDTH */}
-    <div className="border-t border-gray-200 dark:border-zinc-800 pt-8">
-
-      <h4 className="text-base font-semibold text-gray-900 dark:text-white mb-4">
-        Live Risk Distribution
-      </h4>
-
-      <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-        Based on your current deals and the weighting settings above.
-      </p>
-
-      <div className="space-y-4">
-
-        {/* Low */}
-        <div>
-          <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-1">
-            <span>Low Risk</span>
-            <span>{deals.filter(d => d.riskLevel === 'low').length} deals</span>
-          </div>
-          <div className="w-full h-2 rounded-full bg-gray-100 dark:bg-zinc-800">
-            <div className="h-2 rounded-full bg-emerald-500"
-              style={{ width: `${(deals.filter(d => d.riskLevel === 'low').length / deals.length) * 100}%` }}
-            />
-          </div>
-        </div>
-
-        {/* Medium */}
-        <div>
-          <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-1">
-            <span>Medium Risk</span>
-            <span>{deals.filter(d => d.riskLevel === 'medium').length} deals</span>
-          </div>
-          <div className="w-full h-2 rounded-full bg-gray-100 dark:bg-zinc-800">
-            <div className="h-2 rounded-full bg-amber-500"
-              style={{ width: `${(deals.filter(d => d.riskLevel === 'medium').length / deals.length) * 100}%` }}
-            />
-          </div>
-        </div>
-
-        {/* High */}
-        <div>
-          <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-1">
-            <span>High Risk</span>
-            <span>{deals.filter(d => d.riskLevel === 'high').length} deals</span>
-          </div>
-          <div className="w-full h-2 rounded-full bg-gray-100 dark:bg-zinc-800">
-            <div className="h-2 rounded-full bg-red-500"
-              style={{ width: `${(deals.filter(d => d.riskLevel === 'high').length / deals.length) * 100}%` }}
-            />
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-  </section>
-)}
 
           {/* NOTIFICATIONS TAB */}
           {activeTab === 'notifications' && (

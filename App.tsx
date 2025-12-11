@@ -7,6 +7,7 @@ import { InsightsView } from './views/InsightsView';
 import { SettingsView } from './views/SettingsView';
 import { MOCK_DEALS, DEFAULT_PREFERENCES } from './constants';
 import { Deal, ViewState, AgentPreferences, UserProfile } from './types';
+import { RiskEngineView } from "./views/RiskEngineView";
 import { Search, MessageSquare, Mail } from 'lucide-react';
 
 // ⭐️ IMPORT DU RISK ENGINE
@@ -65,7 +66,12 @@ const App: React.FC = () => {
     riskWeightAmount: 0.4,
     riskWeightStage: 0.3,
     riskWeightInactivity: 0.2,
+    highValueThreshold: 50000,
     riskWeightNotes: 0.1,
+    // ⭐️ REQUIRED FOR THE NEW ENGINE
+  riskyStages: [],   
+  riskKeywords: []      // ← AJOUT OBLIGATOIRE
+  
   });
 
   // ⭐️ FONCTION D’ENRICHISSEMENT DES DEALS
@@ -125,6 +131,14 @@ const handleUpdateDeal = (updatedDeal: Deal) => {
         return <InsightsView deals={deals} onSelectDeal={handleSelectDeal} />;
       case 'help':
         return <HelpView />;
+        case "riskEngine":
+  return (
+    <RiskEngineView
+      profile={userProfile}
+      onUpdateProfile={setUserProfile}
+      deals={deals}
+    />
+  );
       case 'settings':
   return (
     <SettingsView 

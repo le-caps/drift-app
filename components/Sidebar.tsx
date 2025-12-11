@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ViewState } from '../types';
-import { Layers, PieChart, Bot, HelpCircle, Settings, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Layers, PieChart, Bot, HelpCircle, Settings, X, ChevronLeft, ChevronRight, Shield } from 'lucide-react';
 
 interface SidebarProps {
   currentView: ViewState;
@@ -36,6 +36,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, isO
       </button>
     );
   };
+
+  
 
   return (
     <>
@@ -79,12 +81,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, isO
           </button>
         </div>
 
-        {/* Nav Links */}
-        <div className="flex-1 px-3 py-4 space-y-1 overflow-y-auto mt-2 custom-scrollbar">
-          <NavItem view="deals" icon={Layers} label="Deals" />
-          <NavItem view="insights" icon={PieChart} label="Pipeline Insights" />
-          <NavItem view="agent" icon={Bot} label="My AI Agent" />
-        </div>
+       {/* Nav Links */}
+<div className="flex-1 px-3 py-4 space-y-1 overflow-y-auto mt-2 custom-scrollbar">
+  <NavItem view="deals" icon={Layers} label="Deals" />
+  <NavItem view="insights" icon={PieChart} label="Pipeline Insights" />
+
+  {/* NEW — Risk Engine */}
+  <NavItem view="riskEngine" icon={Shield} label="Deal Risk Engine" />
+
+  <NavItem view="agent" icon={Bot} label="My AI Agent" />
+</div>
 
         {/* Bottom Nav */}
         <div className="p-3 border-t border-gray-200 dark:border-zinc-800 space-y-1">

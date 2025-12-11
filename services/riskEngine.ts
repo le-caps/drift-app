@@ -1,59 +1,119 @@
 import { Deal, UserProfile } from "../types";
 
-// Helper: normalize a value between 0 and 1
-const normalize = (value: number, max: number) => {
-  return Math.min(value / max, 1);
-};
+export function computeRiskScore(deal: Deal, profile: UserProfile) {
+  const reasons: string[] = [];
 
-export const computeRiskScore = (deal: Deal, profile: UserProfile) => {
-  const factors: string[] = [];
+  // -----------------------------
+  // 1) Amount-based risk
+  // -----------------------------
+  let amountScore = 0;
 
-  // 1) Inactivity (0–1)
-  const inactivityRisk = normalize(deal.daysInactive, profile.stalledThresholdDays * 2);
-  if (deal.daysInactive > profile.stalledThresholdDays) {
-    factors.push(`Inactive for ${deal.daysInactive} days`);
+  if (deal.amount >= profile.highValueThreshold) {
+  amountScore = 1;
+
+  const formattedAmount = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: deal.currency || "USD",
+    maximumFractionDigits: 0,
+  }).format(deal.amount);
+
+  const formattedThreshold = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: deal.currency || "USD",
+    maximumFractionDigits: 0,
+  }).format(profile.highValueThreshold);
+
+  reasons.push(
+    `High-value deal: ${formattedAmount} exceeds your threshold of ${formattedThreshold}`
+  );
+}
+
+  // -----------------------------
+  // 2) Stage-based risk
+  // -----------------------------
+  let stageScore = 0;
+
+  const riskyStages = (profile.riskyStages || []).map(s => s.toLowerCase());
+
+  if (riskyStages.includes(deal.stage.toLowerCase())) {
+    stageScore = 1;
+    reasons.push(`Deal currently in a risky stage: ${deal.stage}`);
   }
 
-  // 2) Stage (0–1)
-  const riskyStages = ["Contract Sent", "Legal Review", "Negotiation", "Procurement"];
-  const stageRisk = riskyStages.includes(deal.stage) ? 1 : 0.3;
-  if (stageRisk > 0.5) {
-    factors.push(`Deal is currently in a high-friction stage (${deal.stage})`);
+  // -----------------------------
+  // 3) Inactivity-based risk
+  // -----------------------------
+  let inactivityScore = 0;
+
+  if (deal.daysInactive >= profile.stalledThresholdDays) {
+    inactivityScore = 1;
+    reasons.push(`Inactive for ${deal.daysInactive} days`);
   }
 
-  // 3) Amount (0–1)
-  const amountRisk = normalize(deal.amount, 100000); // normalize vs 100k for MVP
-  if (deal.amount > 50000) {
-    factors.push(`High-value deal ($${deal.amount.toLocaleString()})`);
-  }
-
-  // 4) Notes (0–1)
+  // -----------------------------
+  // 4) Notes Keyword Risk
+  // -----------------------------
+  let keywordScore = 0;
   const notes = deal.notes?.toLowerCase() || "";
-  let notesRisk = 0;
-  const riskKeywords = ["budget", "legal", "blocked", "delay", "stalled", "no response"];
 
-  riskKeywords.forEach((k) => {
-    if (notes.includes(k)) {
-      notesRisk = 1;
-      factors.push(`Notes mention a risk factor ("${k}")`);
+  if (profile.riskKeywords && profile.riskKeywords.length > 0) {
+    for (const kw of profile.riskKeywords) {
+      if (kw.word && notes.includes(kw.word.toLowerCase())) {
+        keywordScore += kw.weight;
+        reasons.push(`Keyword detected: "${kw.word}"`);
+      }
     }
-  });
 
-  // --- WEIGHTED SCORE (0–100) ---
-  const score =
-    (inactivityRisk * profile.riskWeightInactivity +
-      stageRisk * profile.riskWeightStage +
-      amountRisk * profile.riskWeightAmount +
-      notesRisk * profile.riskWeightNotes) *
-    100;
+    keywordScore = Math.min(1, keywordScore);
+  }
 
-  let riskLevel: "low" | "medium" | "high" = "low";
-  if (score > 70) riskLevel = "high";
-  else if (score > 40) riskLevel = "medium";
+  // -----------------------------
+  // 5) Weighted final score
+  // -----------------------------
+  const {
+    riskWeightAmount,
+    riskWeightStage,
+    riskWeightInactivity,
+    riskWeightNotes,
+  } = profile;
+
+  const finalScore =
+    amountScore * riskWeightAmount +
+    stageScore * riskWeightStage +
+    inactivityScore * riskWeightInactivity +
+    keywordScore * riskWeightNotes;
+
+  const score = Math.round(finalScore * 100);
+
+  // -----------------------------
+  // Risk Level
+  // -----------------------------
+  let level: "low" | "medium" | "high" = "low";
+
+  if (score >= 70) level = "high";
+  else if (score >= 35) level = "medium";
 
   return {
-    score: Math.round(score),
-    riskLevel,
-    riskFactors: factors,
+    score,
+    riskLevel: level,
+    riskFactors: reasons,
   };
-};
+}
+
+// ---------------------------------------------------------
+
+export function computeAllDealRisks(
+  deals: Deal[],
+  profile: UserProfile
+): Deal[] {
+  return deals.map((d) => {
+    const r = computeRiskScore(d, profile);
+
+    return {
+      ...d,
+      riskScore: r.score,
+      riskLevel: r.riskLevel,
+      riskFactors: r.riskFactors,
+    };
+  });
+}

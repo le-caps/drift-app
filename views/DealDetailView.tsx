@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Deal, AgentPreferences, Priority } from '../types';
 import { generateFollowUp } from '../services/aiService';
 import {
-  ArrowLeft, Building, User, Calendar, DollarSign,
+  ArrowLeft, Building, User, Calendar,
   Activity, Send, Sparkles, Copy, Check, RefreshCw, AlignLeft,
   ExternalLink, Clock, Mail, AlertTriangle
 } from 'lucide-react';
@@ -59,27 +59,25 @@ export const DealDetailView: React.FC<DealDetailViewProps> = ({
   const [emailSent, setEmailSent] = useState(false);
 
   const handleGenerate = async () => {
-  setIsGenerating(true);
-  setEmailSent(false);
+    setIsGenerating(true);
+    setEmailSent(false);
 
-  try {
-    // ✅ On part de preferences (qui est déjà un AgentPreferences)
-    const enrichedPrefs: AgentPreferences = {
-      ...preferences,
-      senderName: preferences.senderName, // tu peux mettre un fallback si tu veux
-      // si tu veux forcer une langue par défaut :
-      language: preferences.language || 'en',
-    };
+    try {
+      const enrichedPrefs: AgentPreferences = {
+        ...preferences,
+        senderName: preferences.senderName,
+        language: preferences.language || 'en',
+      };
 
-    const draft = await generateFollowUp(deal, enrichedPrefs);
-    setEmailDraft(draft);
+      const draft = await generateFollowUp(deal, enrichedPrefs);
+      setEmailDraft(draft);
 
-  } catch (error) {
-    console.error("Failed to generate", error);
-  } finally {
-    setIsGenerating(false);
-  }
-};
+    } catch (error) {
+      console.error("Failed to generate", error);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   // Reset state when deal changes, but DO NOT auto-generate
   useEffect(() => {
@@ -89,6 +87,7 @@ export const DealDetailView: React.FC<DealDetailViewProps> = ({
   }, [deal.id]);
 
   const handleCopy = () => {
+    if (!emailDraft) return;
     navigator.clipboard.writeText(emailDraft);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -101,7 +100,7 @@ export const DealDetailView: React.FC<DealDetailViewProps> = ({
       ...deal,
       lastActivityDate: new Date().toISOString(),
       daysInactive: 0,
-      notes: deal.notes + `\n[${new Date().toLocaleDateString('en-US')}] Follow-up email logged to CRM.`
+      notes: (deal.notes || '') + `\n[${new Date().toLocaleDateString('en-US')}] Follow-up email logged to CRM.`
     };
     onUpdateDeal(updatedDeal);
   };
@@ -111,6 +110,49 @@ export const DealDetailView: React.FC<DealDetailViewProps> = ({
     const cleanCompany = deal.companyName.toLowerCase().replace(/[^a-z0-9]/g, '');
     return `${cleanName}@${cleanCompany}.com`;
   };
+
+  // --------------------------------------------------
+  // 🔍 Risk Score Breakdown (basé sur riskFactors)
+  // --------------------------------------------------
+  const riskFactors = deal.riskFactors || [];
+
+  const factorConfigs = [
+    {
+      id: 'amount',
+      label: 'Deal Amount',
+      match: (r: string) => r.toLowerCase().includes('high-value deal'),
+    },
+    {
+      id: 'stage',
+      label: 'Deal Stage',
+      match: (r: string) => r.toLowerCase().includes('risky stage'),
+    },
+    {
+      id: 'inactivity',
+      label: 'Inactivity',
+      match: (r: string) => r.toLowerCase().includes('inactive for'),
+    },
+    {
+      id: 'keywords',
+      label: 'Notes Keywords',
+      match: (r: string) => r.toLowerCase().includes('keyword detected'),
+    },
+  ] as const;
+
+  const factors = factorConfigs.map(cfg => {
+    const reason = riskFactors.find(cfg.match);
+    return {
+      id: cfg.id,
+      label: cfg.label,
+      active: Boolean(reason),
+      reason,
+    };
+  });
+
+  const activeCount = factors.filter(f => f.active).length || 1;
+
+  const getShare = (active: boolean) =>
+    active ? Math.round(100 / activeCount) : 0;
 
   return (
     <div className="animate-fade-in pb-20 max-w-6xl mx-auto px-4 sm:px-6">
@@ -149,64 +191,75 @@ export const DealDetailView: React.FC<DealDetailViewProps> = ({
         </div>
       </div>
 
-      {/* ---- DEAL RISK BLOCK ---- */}
-<div className="layer-panel p-6 rounded-xl border border-gray-200 dark:border-zinc-800 mb-8 bg-white dark:bg-zinc-900">
+      {/* ---- MERGED DEAL RISK PANEL ---- */}
+      <div className="layer-panel p-6 rounded-xl border border-gray-200 dark:border-zinc-800 mb-8 bg-white dark:bg-zinc-900">
+        {/* Top: Icon + Label + Score */}
+        <div className="flex items-start justify-between mb-4">
+          {/* Left: Risk Icon + Labels */}
+          <div className="flex items-start gap-3">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center border ${getRiskColorClasses(deal.riskLevel)}`}>
+              <AlertTriangle size={18} />
+            </div>
 
-  {/* Top: Icon + Label + Score */}
-  <div className="flex items-start justify-between">
+            <div>
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                Deal Risk Level
+              </p>
+              <p className="text-lg font-bold text-gray-900 dark:text-white">
+                {deal.riskLevel === "high" && "High Risk"}
+                {deal.riskLevel === "medium" && "Medium Risk"}
+                {deal.riskLevel === "low" && "Low Risk"}
+                {!deal.riskLevel && "Not rated"}
+              </p>
+            </div>
+          </div>
 
-    {/* Left: Risk Icon + Labels */}
-    <div className="flex items-start gap-3">
-      <div className={`w-10 h-10 rounded-full flex items-center justify-center border ${getRiskColorClasses(deal.riskLevel)}`}>
-        <AlertTriangle size={18} />
+          {/* Right: Score */}
+          <div className="text-right">
+            <p className="text-[11px] text-gray-500 uppercase tracking-wide">Risk Score</p>
+            <p className="text-xl font-extrabold text-gray-900 dark:text-white">
+              {deal.riskScore != null ? `${deal.riskScore}/100` : '—'}
+            </p>
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="h-px bg-gray-100 dark:bg-zinc-800 my-4" />
+
+        {/* Breakdown */}
+        <div className="mb-6">
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+            Risk Score Breakdown
+          </p>
+
+          {factors.map((f) => {
+            const share = getShare(f.active);
+            return (
+              <div key={f.id} className="mb-4">
+                <div className="flex justify-between text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <span>{f.label}</span>
+                  <span>{share}%</span>
+                </div>
+
+                <div className="w-full h-2 bg-gray-100 dark:bg-zinc-800 rounded-full overflow-hidden mb-1">
+                  <div
+                    className="h-2 bg-brand-primary rounded-full transition-all"
+                    style={{ width: `${share}%` }}
+                  />
+                </div>
+
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {f.reason
+                    ? f.reason
+                    : "No specific risk detected for this factor."}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+
+      
       </div>
-
-      <div>
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-          Deal Risk Level
-        </p>
-        <p className="text-lg font-bold text-gray-900 dark:text-white">
-          {deal.riskLevel === "high" && "High Risk"}
-          {deal.riskLevel === "medium" && "Medium Risk"}
-          {deal.riskLevel === "low" && "Low Risk"}
-        </p>
-      </div>
-    </div>
-
-    {/* Right: Score */}
-    <div className="text-right">
-      <p className="text-[11px] text-gray-500 uppercase tracking-wide">Risk Score</p>
-      <p className="text-xl font-extrabold text-gray-900 dark:text-white">
-        {deal.riskScore}/100
-      </p>
-    </div>
-  </div>
-
-  {/* Divider */}
-  <div className="h-px bg-gray-100 dark:bg-zinc-800 my-4"></div>
-
-  {/* Risk Factors */}
-  {deal.riskFactors && deal.riskFactors.length > 0 ? (
-    <div>
-      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-        Why this deal is at risk
-      </p>
-
-      <ul className="space-y-1.5">
-        {deal.riskFactors.map((f, i) => (
-          <li key={i} className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2">
-            <span className="mt-1 h-1.5 w-1.5 rounded-full bg-gray-300 dark:bg-zinc-600"></span>
-            {f}
-          </li>
-        ))}
-      </ul>
-    </div>
-  ) : (
-    <p className="text-sm text-gray-500 dark:text-gray-400">
-      No risk indicators detected for this deal.
-    </p>
-  )}
-</div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
@@ -403,7 +456,7 @@ export const DealDetailView: React.FC<DealDetailViewProps> = ({
                  </p>
                  <div className="flex gap-3 order-1 sm:order-2 w-full sm:w-auto">
                    <button 
-                     onClick={handleSend} // Reused for Log to CRM logic
+                     onClick={handleSend}
                      className="whitespace-nowrap flex-1 sm:flex-none px-4 py-2 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-md text-xs font-medium text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors shadow-sm"
                    >
                      Log to CRM
