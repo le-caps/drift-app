@@ -26,19 +26,7 @@ NON-NEGOTIABLE RULES:
 - Always include the calendar link at the end as a soft optional CTA.
 - Adapt tone, role, and style preferences — but subtly, so it still sounds like a real person.
 
-SUBJECT LINE RULES:
-- The subject must be directly inspired by the deal context (notes, next step, friction, conversation themes).
-- Do NOT include CRM fields (amount, stage, dates, deal name).
-- No clichés (“checking in”, “following up”, “touching base”).
-- No overly vague subjects (“Quick thought”, “Small question”, etc.).
-- The subject should feel like what a real seller would write when mentally recalling the last conversation.
-- Style allowed: subtle, conversational, context-aware.
-- Aim for 3–7 words.
-- Examples of acceptable *styles* (DO NOT copy literally):
-    • “About the contract review”
-    • “Your legal team's feedback”
-    • “Where things stand on your side”
-    • “Quick note on the draft”
+
 
 GOAL:
 Write the most natural, context-aware follow-up email possible.

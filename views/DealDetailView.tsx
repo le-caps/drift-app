@@ -4,8 +4,21 @@ import { generateFollowUp } from '../services/aiService';
 import {
   ArrowLeft, Building, User, Calendar, DollarSign,
   Activity, Send, Sparkles, Copy, Check, RefreshCw, AlignLeft,
-  ExternalLink, Clock, Mail
+  ExternalLink, Clock, Mail, AlertTriangle
 } from 'lucide-react';
+
+const getRiskColorClasses = (level?: 'low' | 'medium' | 'high') => {
+  switch (level) {
+    case "high":
+      return "text-red-600 bg-red-50 border-red-200 dark:text-red-400 dark:bg-red-900/20 dark:border-red-900";
+    case "medium":
+      return "text-amber-600 bg-amber-50 border-amber-200 dark:text-amber-400 dark:bg-amber-900/20 dark:border-amber-900";
+    case "low":
+      return "text-emerald-600 bg-emerald-50 border-emerald-200 dark:text-emerald-400 dark:bg-emerald-900/20 dark:border-emerald-900";
+    default:
+      return "text-gray-600 bg-gray-50 border-gray-200 dark:bg-zinc-800 dark:text-gray-400 dark:border-zinc-700";
+  }
+};
 
 interface DealDetailViewProps {
   deal: Deal;
@@ -46,17 +59,27 @@ export const DealDetailView: React.FC<DealDetailViewProps> = ({
   const [emailSent, setEmailSent] = useState(false);
 
   const handleGenerate = async () => {
-    setIsGenerating(true);
-    setEmailSent(false);
-    try {
-      const draft = await generateFollowUp(deal, preferences);
-      setEmailDraft(draft);
-    } catch (error) {
-      console.error("Failed to generate", error);
-    } finally {
-      setIsGenerating(false);
-    }
-  };
+  setIsGenerating(true);
+  setEmailSent(false);
+
+  try {
+    // ✅ On part de preferences (qui est déjà un AgentPreferences)
+    const enrichedPrefs: AgentPreferences = {
+      ...preferences,
+      senderName: preferences.senderName, // tu peux mettre un fallback si tu veux
+      // si tu veux forcer une langue par défaut :
+      language: preferences.language || 'en',
+    };
+
+    const draft = await generateFollowUp(deal, enrichedPrefs);
+    setEmailDraft(draft);
+
+  } catch (error) {
+    console.error("Failed to generate", error);
+  } finally {
+    setIsGenerating(false);
+  }
+};
 
   // Reset state when deal changes, but DO NOT auto-generate
   useEffect(() => {
@@ -126,53 +149,64 @@ export const DealDetailView: React.FC<DealDetailViewProps> = ({
         </div>
       </div>
 
-      {/* Pipeline Progress Bar (Full Width) */}
-      <div className="layer-panel p-6 rounded-xl mb-8 bg-white dark:bg-zinc-900">
-        <div className="flex justify-between items-end mb-4">
-          <div>
-             <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Pipeline Progress</h3>
-             <p className="text-lg font-medium text-brand-primary mt-1">{deal.stage}</p>
-          </div>
-        </div>
-        <div className="relative pt-2 pb-6">
-          <div className="flex justify-between items-center relative z-10">
-            {['Discovery', 'Evaluation', 'Proposal Sent', 'Negotiation', 'Qualified to Buy'].map((step, i, arr) => {
-               // Simple logic to determine active step index based on deal.stage
-               const stages = ['Discovery', 'Evaluation', 'Proposal Sent', 'Negotiation', 'Qualified to Buy'];
-               const currentIndex = stages.findIndex(s => deal.stage.includes(s)) !== -1 
-                  ? stages.findIndex(s => deal.stage.includes(s)) 
-                  : 1; 
-               const isActive = i <= currentIndex;
-               const isCurrent = i === currentIndex;
-               
-               return (
-                 <div key={step} className="flex flex-col items-center flex-1 relative group">
-                    {/* Line connector */}
-                    {i !== 0 && (
-                        <div className={`absolute top-2.5 right-[50%] w-full h-0.5 -z-10 ${isActive ? 'bg-brand-primary' : 'bg-gray-200 dark:bg-zinc-700'}`} />
-                    )}
-                    
-                    {/* Dot */}
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
-                        isActive 
-                            ? 'bg-brand-primary border-brand-primary' 
-                            : 'bg-white dark:bg-zinc-900 border-gray-300 dark:border-zinc-700'
-                    }`}>
-                        {isActive && <Check size={10} className="text-white" strokeWidth={3} />}
-                    </div>
+      {/* ---- DEAL RISK BLOCK ---- */}
+<div className="layer-panel p-6 rounded-xl border border-gray-200 dark:border-zinc-800 mb-8 bg-white dark:bg-zinc-900">
 
-                    {/* Label */}
-                    <span className={`absolute top-8 text-xs font-medium text-center w-24 transition-colors ${
-                        isCurrent ? 'text-brand-primary' : 'text-gray-500 dark:text-gray-400'
-                    }`}>
-                        {step}
-                    </span>
-                 </div>
-               );
-            })}
-          </div>
-        </div>
+  {/* Top: Icon + Label + Score */}
+  <div className="flex items-start justify-between">
+
+    {/* Left: Risk Icon + Labels */}
+    <div className="flex items-start gap-3">
+      <div className={`w-10 h-10 rounded-full flex items-center justify-center border ${getRiskColorClasses(deal.riskLevel)}`}>
+        <AlertTriangle size={18} />
       </div>
+
+      <div>
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+          Deal Risk Level
+        </p>
+        <p className="text-lg font-bold text-gray-900 dark:text-white">
+          {deal.riskLevel === "high" && "High Risk"}
+          {deal.riskLevel === "medium" && "Medium Risk"}
+          {deal.riskLevel === "low" && "Low Risk"}
+        </p>
+      </div>
+    </div>
+
+    {/* Right: Score */}
+    <div className="text-right">
+      <p className="text-[11px] text-gray-500 uppercase tracking-wide">Risk Score</p>
+      <p className="text-xl font-extrabold text-gray-900 dark:text-white">
+        {deal.riskScore}/100
+      </p>
+    </div>
+  </div>
+
+  {/* Divider */}
+  <div className="h-px bg-gray-100 dark:bg-zinc-800 my-4"></div>
+
+  {/* Risk Factors */}
+  {deal.riskFactors && deal.riskFactors.length > 0 ? (
+    <div>
+      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+        Why this deal is at risk
+      </p>
+
+      <ul className="space-y-1.5">
+        {deal.riskFactors.map((f, i) => (
+          <li key={i} className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2">
+            <span className="mt-1 h-1.5 w-1.5 rounded-full bg-gray-300 dark:bg-zinc-600"></span>
+            {f}
+          </li>
+        ))}
+      </ul>
+    </div>
+  ) : (
+    <p className="text-sm text-gray-500 dark:text-gray-400">
+      No risk indicators detected for this deal.
+    </p>
+  )}
+</div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
@@ -197,6 +231,7 @@ export const DealDetailView: React.FC<DealDetailViewProps> = ({
             <h3 className="text-sm font-semibold text-gray-900 dark:text-white border-b border-gray-100 dark:border-zinc-800 pb-3">
               Deal Information
             </h3>
+            
             
             {/* Amount */}
             <div>
